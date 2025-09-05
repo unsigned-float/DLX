@@ -22,7 +22,7 @@ pub struct Node {
 }
 impl Node {
     /// Create a new node with data.
-    pub(crate) fn new(data: usize) -> RcNode {
+    pub fn new(data: usize) -> RcNode {
         Rc::new_cyclic(|n| RefCell::new(Node {
             u: n.clone(),
             d: n.clone(),
@@ -71,7 +71,7 @@ impl Node {
     }
 
     /// Build a structure of nodes from a bool matrix, returning the root node.
-    pub(crate) fn build(input: &Vec<Vec<bool>>) -> (RcNode, Vec<RcNode>) {
+    pub fn build(input: &Vec<Vec<bool>>) -> (RcNode, Vec<RcNode>) {
         let width = input[0].len();
 
         let root = Node::new(0);
@@ -124,6 +124,17 @@ impl Node {
         }
 
         (root, all_nodes)
+    }
+
+    /// Build the node matrix from a list of objects and their variations.
+    pub fn matrix_from_variations(input: &Vec<Vec<bool>>) -> Vec<Vec<bool>> {
+        let variations = input.len();
+        input.iter().enumerate().map(|(i, row)| {
+            let mut entry = vec![false; variations];
+            entry.extend(row);
+            entry[i] = true;
+            entry
+        }).collect()
     }
 
     /// Cover a column.

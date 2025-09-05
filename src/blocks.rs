@@ -1,6 +1,7 @@
 //! Block generation.
 
 use std::collections::HashSet;
+use crate::Node;
 
 /// Blocks in 2D.
 #[derive(Clone, Eq, Hash, PartialEq)]
@@ -75,34 +76,30 @@ impl Game2D {
 
     /// Create a matrix from the blocks in the game to use within DLX and create the structure.
     pub fn get_matrix(&mut self) -> Vec<Vec<bool>> {
-        let amt_blocks = self.blocks.len();
-        let width = self.w * self.h + amt_blocks;
-        let mut matrix = Vec::new();
-        for (i, block) in self.blocks.iter_mut().enumerate() {
+        let mut variations = Vec::new();
+
+        for block in self.blocks.iter_mut() {
             for transformation in block.get_transformations() {
                 for shift_y in 0..=(self.h - transformation.h) {
                     for shift_x in 0..=(self.w - transformation.w) {
-                        let mut current_vec = vec![false; width];
-                        let mut j = amt_blocks;
+                        let mut entry = Vec::new();
                         for py in 0..self.h {
                             for px in 0..self.w {
-                                current_vec[j] =
+                                entry.push(
                                     shift_x <= px &&
                                     px < (shift_x + transformation.w) &&
                                     shift_y <= py &&
                                     py < (shift_y + transformation.h) &&
-                                    transformation.data[py - shift_y][px - shift_x];
-
-                                j += 1;
+                                    transformation.data[py - shift_y][px - shift_x]
+                                );
                             }
                         }
-                        current_vec[i] = true;
-                        matrix.push(current_vec);
+                        variations.push(entry);
                     }
                 }
             }
         }
 
-        matrix
+        Node::matrix_from_variations(&variations)
     }
 }
