@@ -3,6 +3,9 @@
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
 use std::sync::atomic::{AtomicUsize, Ordering};
+use wasm_bindgen::prelude::*;
+use serde_wasm_bindgen::Serializer;
+use serde::Serialize;
 
 static NODE_COUNT: AtomicUsize = AtomicUsize::new(0);
 
@@ -367,3 +370,45 @@ impl Node {
 
 /// Stupid helper function... data structures in rust 😔
 fn weak2rc(weak: &WeakNode) -> RcNode { weak.upgrade().unwrap() }
+
+#[wasm_bindgen]
+pub fn js_matrix_from_variations(input_flat: Vec<u8>, width: usize, height: usize) -> Vec<u8> {
+    let mut matrix_flat: Vec<u8> = Vec::new();
+    for y in 0..height {
+        for x in 0..width {
+            matrix_flat.push(input_flat[y * width + x]);
+        }
+    }
+    matrix_flat
+}
+
+#[wasm_bindgen]
+pub fn js_solve_once(input_flat: Vec<u8>, width: usize, height: usize) -> JsValue {
+    let mut input: Vec<Vec<bool>> = Vec::new();
+    for y in 0..height {
+        let mut row = Vec::new();
+        for x in 0..width {
+            row.push(input_flat[y * width + x] != 0);
+        }
+        input.push(row);
+    }
+
+    match Node::solve_once(&input) {
+        Some(solution) => solution.serialize(&Serializer::json_compatible()).unwrap(),
+        None => JsValue::NULL,
+    }
+}
+
+#[wasm_bindgen]
+pub fn js_solve_all(input_flat: Vec<u8>, width: usize, height: usize) -> JsValue {
+    let mut input: Vec<Vec<bool>> = Vec::new();
+    for y in 0..height {
+        let mut row = Vec::new();
+        for x in 0..width {
+            row.push(input_flat[y * width + x] != 0);
+        }
+        input.push(row);
+    }
+    Node::solve_all(&input).serialize(&Serializer::json_compatible()).unwrap()
+}
+
