@@ -1,7 +1,7 @@
 //! Block generation.
 
 use std::collections::HashSet;
-use crate::Node;
+use crate::*;
 
 /// Blocks in 2D.
 #[derive(Clone, Eq, Hash, PartialEq)]
