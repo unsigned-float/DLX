@@ -76,30 +76,34 @@ impl Game2D {
 
     /// Create a matrix from the blocks in the game to use within DLX and create the structure.
     pub fn get_matrix(&mut self) -> Vec<Vec<bool>> {
-        let mut variations = Vec::new();
-
-        for block in self.blocks.iter_mut() {
+        let amt_blocks = self.blocks.len();
+        let width = self.w * self.h + amt_blocks;
+        let mut matrix = Vec::new();
+        for (i, block) in self.blocks.iter_mut().enumerate() {
             for transformation in block.get_transformations() {
                 for shift_y in 0..=(self.h - transformation.h) {
                     for shift_x in 0..=(self.w - transformation.w) {
-                        let mut entry = Vec::new();
+                        let mut current_vec = vec![false; width];
+                        let mut j = amt_blocks;
                         for py in 0..self.h {
                             for px in 0..self.w {
-                                entry.push(
+                                current_vec[j] =
                                     shift_x <= px &&
                                     px < (shift_x + transformation.w) &&
                                     shift_y <= py &&
                                     py < (shift_y + transformation.h) &&
-                                    transformation.data[py - shift_y][px - shift_x]
-                                );
+                                    transformation.data[py - shift_y][px - shift_x];
+
+                                j += 1;
                             }
                         }
-                        variations.push(entry);
+                        current_vec[i] = true;
+                        matrix.push(current_vec);
                     }
                 }
             }
         }
 
-        Node::matrix_from_variations(&variations)
+        matrix
     }
 }

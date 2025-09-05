@@ -129,17 +129,6 @@ impl Node {
         (root, all_nodes)
     }
 
-    /// Build the node matrix from a list of objects and their variations.
-    pub fn matrix_from_variations(input: &Vec<Vec<bool>>) -> Vec<Vec<bool>> {
-        let variations = input.len();
-        input.iter().enumerate().map(|(i, row)| {
-            let mut entry = vec![false; variations];
-            entry.extend(row);
-            entry[i] = true;
-            entry
-        }).collect()
-    }
-
     /// Cover a column.
     #[allow(unused_braces)]
     fn cover(header: &RcNode) {
@@ -371,19 +360,6 @@ impl Node {
 /// Stupid helper function... data structures in rust 😔
 fn weak2rc(weak: &WeakNode) -> RcNode { weak.upgrade().unwrap() }
 
-#[wasm_bindgen]
-pub fn js_matrix_from_variations(input_flat: Vec<u8>, width: usize, height: usize) -> Vec<u8> {
-    let mut input: Vec<Vec<bool>> = Vec::new();
-    for y in 0..height {
-        let mut row = Vec::new();
-        for x in 0..width {
-            row.push(input_flat[y * width + x] != 0);
-        }
-        input.push(row);
-    }
-
-    Node::matrix_from_variations(&input).iter().flatten().map(|x| *x as u8).collect()
-}
 
 #[wasm_bindgen]
 pub fn js_solve_once(input_flat: Vec<u8>, width: usize, height: usize) -> JsValue {
